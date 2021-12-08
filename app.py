@@ -2,6 +2,7 @@ import boto3
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.express as px
 
 import random
 from PIL import Image
@@ -66,6 +67,8 @@ validation_sample = [
 # st.image('{}/{}/train_1.jpg'.format(URL, train_path), width=200)
 
 def main():
+
+    st.set_page_config(layout="wide")
     st.header('Dataset')
     st.dataframe(df)
     
@@ -74,31 +77,52 @@ def main():
         st.dataframe(train_df)
 
         choice = random.choice(train_sample)
-        col1, col2, col3 = st.columns([0.3, 0.7, 0.3])
-        col2.write('tags: {}'.format(df.loc[choice.split('/')[-1]]['split_tags']))
-        col2.image(choice, use_column_width=True,
-                   caption=choice.split('/')[-1])
+        #col1, col2, col3 = st.columns([1, 0.1, 0.8])
+        #col1, col2 = st.columns([2,4])
+        col1, col2, col3, col4, col5 = st.columns([0.5, 3, 0.7, 4, 0.5])
+        #col2.write('tags: {}'.format(df.loc[choice.split('/')[-1]]['split_tags']))
+
+    with st.container():
+        first, second = st.columns(2)
         
-        prev = 0
-        for i in range(4, 15, 5):
-            st.image(train_sample[prev:i+1], width=140)
-            prev = i + 1
+        with first:
+            col2.write('**tags: {}**'.format(df.loc[choice.split('/')[-1]]['split_tags']))
+            col2.image(choice, width = 500,
+                    caption=choice.split('/')[-1])
+        
+        with second:
+            col4.text(" ")
+            col4.text(" ")
             
+            prev = 0
+            for i in range(3, 12, 4):
+                col4.image(train_sample[prev:i + 1], width=160)
+                prev = i + 1
+
     with st.container():
         st.header('Validation Data')
         st.dataframe(validation_df)
         
         choice = random.choice(validation_sample)
-        col1, col2, col3 = st.columns([0.3, 0.7, 0.3])
-        col2.write('tags: {}'.format(
-            df.loc[choice.split('/')[-1]]['split_tags']))
-        col2.image(choice, use_column_width=True,
-                   caption=choice.split('/')[-1])
+        #col1, col2, col3 = st.columns([0.3, 0.7, 0.3])
+        col1, col2, col3, col4, col5 = st.columns([0.5, 3, 0.7, 4, 0.5])
+
+        with st.container():
         
-        prev = 0
-        for i in range(4, 15, 5):
-            st.image(validation_sample[prev:i+1], width=140)
-            prev = i + 1
+            first, second = st.columns(2)
+
+            with first:
+                col2.write('**tags: {}**'.format(df.loc[choice.split('/')[-1]]['split_tags']))
+                col2.image(choice, width=500,caption=choice.split('/')[-1])
+
+            with second:
+                col4.text(" ")
+                col4.text(" ")
+                
+                prev = 0
+                for i in range(3, 12, 4):
+                    col4.image(validation_sample[prev:i+1], width=160)
+                    prev = i + 1
             
     with st.container():
         st.header('Prediction')
@@ -108,7 +132,49 @@ def main():
         if user_input is not None:
             st.image(user_input, width=500)
             get_predictions(user_input)
+
+    with st.container():
+        st.header('Data Exploration')
+        #Plotting of pie chart
+        fig = px.pie(df, names = 'present_tags', title = "Number of entries with deforestation tags")
+        st.plotly_chart(fig, use_container_width=True)
+
+        tag_df = pd.DataFrame(columns=['count','tag'])
+        
+        tag_columns = ['agriculture', 'artisinal_mine', 'bare_ground', 'blooming', 'blow_down', 
+        'clear', 'cloudy', 'conventional_mine', 'cultivation', 'habitation', 'haze', 'partly_cloudy', 
+        'primary', 'road', 'selective_logging', 'slash_burn', 'water']
+        
+        tags_list = []
+        
+        for tag in tag_columns:
+            tag_count = {}
+            tag_count['tag'] = tag
+            tag_count['count'] = df[tag].sum()
+            tags_list.append(tag_count)
             
+            final = tag_df.append(tags_list, ignore_index = True).sort_values(by='count', ascending=False)
+
+
+        #Plotting of bar graph
+        fig2 = px.bar(final, x='tag', y='count', title="Number of entries for each tag")
+        st.plotly_chart(fig2, use_container_width=True)
+
+    with st.container():
+
+        column1, column2 = st.columns(2)
+
+        with column1:
+
+            training = px.pie(df[df['type'] == 'train'], names = 'present_tags', 
+            title = "Number of entries with deforestation tags (Training Data)")
+            column1.write(training)
+
+        with column2:
+            validation = px.pie(df[df['type'] == 'validation'], 
+            names = 'present_tags', title = "Number of entries with deforestation tags (Validation Data)")
+            column2.write(validation)
+        
 # Runs the sagemaker runtime client to access the endpoint for inference
 def get_predictions(image: Image):
     endpoint = 'sagemaker-endpoint-v2'
