@@ -5,6 +5,7 @@ import numpy as np
 import plotly.express as px
 
 import random
+import urllib.request
 from PIL import Image
 from io import BytesIO
 
@@ -27,7 +28,7 @@ train_path = 'image-classification/train'
 train_lst_path = 'image-classification/train-lst'
 validation_path = 'image-classification/validation'
 validation_lst_path = 'image-classification/validation-lst'
-random_prediction = 'image-classification/random-prediction'
+prediction = 'image-classification/train-50-jpg'
 
 # Client for runtime.sagemaker 
 runtime = boto3.client('runtime.sagemaker')
@@ -54,6 +55,7 @@ response = urlopen('{}/{}/planet_validation.lst'.format(URL, validation_lst_path
 for line in response.splitlines():
     validation_lst.append(line.decode('utf-8').split('\t')[-2])
 
+
 # 25 random train images
 train_sample = random.sample(train_lst, 15)
 train_sample = ['{}/{}/{}'.format(URL, train_path, img) for img in train_sample]
@@ -67,7 +69,6 @@ validation_sample = [
 # st.image('{}/{}/train_1.jpg'.format(URL, train_path), width=200)
 
 def main():
-
     st.set_page_config(layout="wide")
     st.header('Dataset')
     st.dataframe(df)
@@ -79,7 +80,7 @@ def main():
         choice = random.choice(train_sample)
         #col1, col2, col3 = st.columns([1, 0.1, 0.8])
         #col1, col2 = st.columns([2,4])
-        col1, col2, col3, col4, col5 = st.columns([0.5, 3, 0.7, 4, 0.5])
+        col1, col2, col3, col4, col5 = st.columns([1, 3, 0.2, 4, 1])
         #col2.write('tags: {}'.format(df.loc[choice.split('/')[-1]]['split_tags']))
 
     with st.container():
@@ -123,15 +124,6 @@ def main():
                 for i in range(3, 12, 4):
                     col4.image(validation_sample[prev:i+1], width=160)
                     prev = i + 1
-            
-    with st.container():
-        st.header('Prediction')
-        user_input = st.file_uploader(label='Upload an image', type=['png', 'jpg', 'jpeg'], accept_multiple_files=False)
-
-        # Gets prediction after the user uploads an image
-        if user_input is not None:
-            st.image(user_input, width=500)
-            get_predictions(user_input)
 
     with st.container():
         st.header('Data Exploration')
@@ -175,8 +167,30 @@ def main():
             names = 'present_tags', title = "Number of entries with deforestation tags (Validation Data)")
             column2.write(validation)
         
+        with st.container():
+            st.header('Prediction')
+            user_input = st.file_uploader(label='Upload an image', accept_multiple_files=False)
+            
+            # Gets prediction after the user uploads an image (Currently doesnt work with uploading images from the planet dataset)
+            if user_input is not None:
+                st.image(user_input, width=300)
+                get_predictions(user_input)
+            
+            # Allow the user to predict from a random image (IMAGE NOT DISPLAYING AFTER PRESSING THE BUTTON, PREDICTIONS OKAY)
+            st.button('Predict from Test Data', on_click=random_prediction)
+                
+                
+def random_prediction():
+    image = '{}/{}/test_9.jpg'.format(URL, prediction)
+    # Temporarily store the image in the folder so it can be referenced
+    urllib.request.urlretrieve(image, 'temp.png')
+    if image is not None:
+        st.image(image, width=300)
+        get_predictions('temp.png')
+    
+        
 # Runs the sagemaker runtime client to access the endpoint for inference
-def get_predictions(image: Image):
+def get_predictions(image):
     endpoint = 'sagemaker-endpoint-v2'
     with Image.open(image) as image:
         img_byte_arr = BytesIO()
@@ -184,13 +198,12 @@ def get_predictions(image: Image):
         img_byte_arr = img_byte_arr.getvalue()
 
         response = runtime.invoke_endpoint(EndpointName=endpoint,
-                                                  Body=img_byte_arr, ContentType='image/png')
+                                                  Body=img_byte_arr, ContentType='application/x-image')
         
         # do not simplify into response['Body'].read(); will get error
         payload = response['Body']
         preds = np.array(payload.read())
         print(preds)
-        print(type(preds))
         
 if __name__ == '__main__':
     main()
