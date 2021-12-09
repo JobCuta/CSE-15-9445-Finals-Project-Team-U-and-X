@@ -3,6 +3,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 import random
 import urllib.request
@@ -12,10 +14,10 @@ from io import BytesIO
 from urllib.request import urlopen
 
 # THINGS TO DO:
-#  - ADD CHARTS FROM THE DATA EXPLORATION
-#  - SEPARATE THE DATA EXPLORATION AND PREDICTION PARTS
+#  - ADD CHARTS FROM THE DATA EXPLORATION (done)
+#  - SEPARATE THE DATA EXPLORATION AND PREDICTION PARTS (done)
 #  - ADD PREPROCESSING TO THE USER UPLOADED IMAGE TO BE RESIZED TO (3, 256, 256)
-#  - FIX THE APPEARANCE OF THE TRAINING AND VALIDATION DATA SAMPLE IMAGES 
+#  - FIX THE APPEARANCE OF THE TRAINING AND VALIDATION DATA SAMPLE IMAGES (done)
 #  - CLEAN THE CODE
 #  - MAP THE PREDICTION TO THE TAG AND RETURN THE TAGS THAT ARE HIGHER THAN THE THRESHOLD
 #       -> Optional: CHECK IF A DEFORESTATION TAG IS INCLUDED IN THE PREDICTION AND ADD AN INDICATION
@@ -78,10 +80,8 @@ def main():
         st.dataframe(train_df)
 
         choice = random.choice(train_sample)
-        #col1, col2, col3 = st.columns([1, 0.1, 0.8])
-        #col1, col2 = st.columns([2,4])
+ 
         col1, col2, col3, col4, col5 = st.columns([1, 3, 0.2, 4, 1])
-        #col2.write('tags: {}'.format(df.loc[choice.split('/')[-1]]['split_tags']))
 
     with st.container():
         first, second = st.columns(2)
@@ -105,8 +105,7 @@ def main():
         st.dataframe(validation_df)
         
         choice = random.choice(validation_sample)
-        #col1, col2, col3 = st.columns([0.3, 0.7, 0.3])
-        col1, col2, col3, col4, col5 = st.columns([0.5, 3, 0.7, 4, 0.5])
+        col1, col2, col3, col4, col5 = st.columns([1, 3, 0.2, 4, 1])
 
         with st.container():
         
@@ -127,6 +126,7 @@ def main():
 
     with st.container():
         st.header('Data Exploration')
+
         #Plotting of pie chart
         fig = px.pie(df, names = 'present_tags', title = "Number of entries with deforestation tags")
         st.plotly_chart(fig, use_container_width=True)
@@ -166,6 +166,35 @@ def main():
             validation = px.pie(df[df['type'] == 'validation'], 
             names = 'present_tags', title = "Number of entries with deforestation tags (Validation Data)")
             column2.write(validation)
+
+    with st.container():
+
+        drowpdown = st.selectbox("Co-occurrence Matrix", 
+        ["Matrix with labels","Matrix with weather labels"])
+
+        def make_cooccurrence_matrix(labels):
+            numeric_df = df[labels]
+            c_matrix = numeric_df.T.dot(numeric_df)
+            return c_matrix
+        
+        matrix1 = make_cooccurrence_matrix(tag_columns)
+
+        if drowpdown == 'Matrix with labels':
+            fig, ax = plt.subplots(figsize = (15,8))
+            sns.heatmap(df.corr(), ax = ax)
+
+            st.write(matrix1)
+            st.write(fig)
+        
+        else:
+            weather_labels = ['clear','partly_cloudy','haze','cloudy']
+            matrix2 = make_cooccurrence_matrix(weather_labels)
+            fig2, ax = plt.subplots(figsize = (15,8))
+            sns.heatmap(matrix2.corr(), ax = ax)
+
+            st.write(matrix2)
+            st.write(fig2)
+            
         
         with st.container():
             st.header('Prediction')
