@@ -57,7 +57,7 @@ def app():
         if user_input is not None:
             st.image(user_input, width=300)
             get_predictions(user_input)
-
+            
         # Allow the user to predict from a random image (IMAGE NOT DISPLAYING AFTER PRESSING THE BUTTON, PREDICTIONS OKAY)
         st.button('Predict from Test Data', on_click=random_prediction)
 
