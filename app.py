@@ -44,8 +44,8 @@ for line in response.splitlines():
     validation_lst.append(line.decode('utf-8').split('\t')[-2])
 
 # 25 random train images
-train_sample = random.sample(train_lst, 15)
-train_sample = ['{}/{}/{}'.format(URL, train_path, img) for img in train_sample]
+# train_sample = random.sample(train_lst, 15)
+# train_sample = ['{}/{}/{}'.format(URL, train_path, img) for img in train_sample]
 
 # 25 random validation images
 validation_sample = random.sample(validation_lst, 15) 
@@ -77,21 +77,30 @@ def app():
     with st.container():
         st.header('Training Data')
         st.dataframe(train_df)
+        
+        st.subheader('Sample images of Training Data')
+        tags = st.multiselect('Select Tags', train_df.columns[2:-2]) #selected tags
+        tags_str = " ".join(tags) #convert selected to string
+        # st.write('tags', tags_str)
+        tags_df = train_df.iloc[:,[0]][train_df['tags'].str.contains(tags_str)] #search image file names based on tags
+        tags_df = ['{}/{}/{}'.format(URL, train_path, img) for img in tags_df.index] #convert image names to links
 
-        with st.container():
-            choice = random.choice(train_sample)
-            col1, col2, col3 = st.columns([3, 0.2, 4])
-            
-            col1.write('**tags: {}**'.format(df.loc[choice.split('/')[-1]]['split_tags']))
-            col1.image(choice, width = 500,
-                        caption=choice.split('/')[-1])
-            
-            col3.text(" ")
-            col3.text(" ")
-            prev = 0
-            for i in range(3, 12, 4):
-                col3.image(train_sample[prev:i + 1], width=165)
-                prev = i + 1
+        if tags_str != '':
+            if tags_df != []:
+                with st.container():
+                    i_col1, i_col2, i_col3, i_col4 = st.columns(4)
+                    i_cols = [i_col1, i_col2, i_col3, i_col4]
+                    prev = 0
+                    curr_icol = 0
+                    for i in tags_df:
+                        i_cols[curr_icol].image(i, width=256)
+                        prev = prev + 1
+                        if curr_icol == 3:
+                            curr_icol = 0
+                        else:
+                            curr_icol = curr_icol + 1
+            else:
+                st.write('No image with those tags cannot be found.')
                 
     with st.container():
         st.header('Validation Data')
