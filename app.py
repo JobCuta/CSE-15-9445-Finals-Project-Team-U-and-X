@@ -133,7 +133,6 @@ def app():
                                     names='present_tags', title="Number of entries with deforestation tags (Validation Data)")
                 st.write(validation)
                 
-        
             
         with st.container():
             tag_dropdown = st.selectbox('Tags', ['Dataset', 'Training Data', 'Validation Data'])
@@ -148,6 +147,8 @@ def app():
                 validation = px.bar(get_tag_counts(validation_df), x='tag', y='count',
                               title="Number of entries for each tag (Validation Data)")
                 st.plotly_chart(validation, use_container_width=True)
+    
+    
     with st.container():
         drowpdown = st.selectbox("Co-occurrence Matrix", 
         ["Matrix with labels","Matrix with weather labels"])

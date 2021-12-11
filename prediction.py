@@ -56,7 +56,7 @@ def app():
         # Gets prediction after the user uploads an image (Currently doesnt work with uploading images from the planet dataset)
         if user_input is not None:
             st.image(user_input, width=300)
-            get_predictions(user_input)
+            predictions = get_predictions(user_input)
 
         # Allow the user to predict from a random image (IMAGE NOT DISPLAYING AFTER PRESSING THE BUTTON, PREDICTIONS OKAY)
         st.button('Predict from Test Data', on_click=random_prediction)
@@ -68,10 +68,11 @@ def random_prediction():
     # Temporarily store the image in the folder so it can be referenced
     urllib.request.urlretrieve(image, 'temp.png')
     if image is not None:
-        st.image(image, width=300)
-        with st.spinner():
-            predictions = get_predictions('temp.png')
-        st.success(predictions)
+        with st.container():
+            st.image(image, width=300)
+            with st.spinner():
+                predictions = get_predictions('temp.png')
+            st.success(predictions)
 
 
 # Runs the sagemaker runtime client to access the endpoint for inference
@@ -86,7 +87,5 @@ def get_predictions(image):
                                                   Body=img_byte_arr, ContentType='application/x-image')
 
         # do not simplify into response['Body'].read(); will get error
-        # do not simplify into response['Body'].read(); will get error
         payload = response['Body']
         return np.array(payload.read())
-        
