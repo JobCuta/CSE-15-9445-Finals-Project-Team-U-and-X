@@ -117,8 +117,9 @@ def app():
 
     with st.container():
         st.header('Data Exploration')
-
-        with st.container():
+        col1, col2 = st.columns([0.5, 0.5])
+        
+        with col1:
             deforestation_dropdown = st.selectbox('Deforestation Sample Split', ['Dataset', 'Training Data', 'Validation Data'])
             if deforestation_dropdown == 'Dataset':
                 #Plotting of pie chart
@@ -134,7 +135,7 @@ def app():
                 st.write(validation)
                 
             
-        with st.container():
+        with col2:
             tag_dropdown = st.selectbox('Tags', ['Dataset', 'Training Data', 'Validation Data'])
             if tag_dropdown == 'Dataset':
                 fig = px.bar(get_tag_counts(df), x='tag', y='count', title="Number of entries for each tag")

@@ -7,8 +7,8 @@ import metrics
 # Pages displayed in the dropdown for page navigation
 pages = {
     "Dashboard": app,
-    "Prediction": prediction,
     "Metrics": metrics,
+    "Prediction": prediction,
 }
 
 st.sidebar.title("Navigation")

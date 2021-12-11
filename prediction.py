@@ -2,6 +2,7 @@ import boto3
 import numpy as np
 
 import streamlit as st
+import json
 
 from PIL import Image
 from io import BytesIO
@@ -33,6 +34,13 @@ response = urlopen('{}/{}/test.lst'.format(URL, prediction_lst_path)).read()
 for line in response.splitlines():
     prediction_lst.append(line.decode('utf-8').split('\t')[-1])
 
+TAGS = ['agriculture', 'artisinal_mine', 'bare_ground', 'blooming', 'blow_down',
+               'clear', 'cloudy', 'conventional_mine', 'cultivation', 'habitation', 'haze', 'partly_cloudy',
+               'primary', 'road', 'selective_logging', 'slash_burn', 'water']
+
+DEFORESTATION_TAGS = ['agriculture', 'artisinal_mine', 'conventional_mine',
+                      'cultivation', 'road', 'selective_logging', 'slash_burn']
+
 def app():
     st.markdown(
         f"""
@@ -48,18 +56,21 @@ def app():
 """,
         unsafe_allow_html=True,
     )
-    
-    with st.container():
-        st.header('Prediction')
-        user_input = st.file_uploader(label='Upload an image', accept_multiple_files=False)
+    st.header('Prediction')
+    pred_type = st.selectbox('Type of Prediction', ['User Upload', 'Random Image'])
+    if pred_type == 'User Upload':
+        
+        with st.container():
+            user_input = st.file_uploader(label='Upload an image', type='png',accept_multiple_files=False)
+            # Gets prediction after the user uploads an image (Currently doesnt work with uploading images from the planet dataset)
+            if user_input is not None:
+                st.image(user_input, width=300)
+                with st.spinner():
+                    predictions = get_predictions('temp.png')
+                st.success(predictions)
+    else:
+        st.button('Predict from Test Data', on_click=random_prediction())
 
-        # Gets prediction after the user uploads an image (Currently doesnt work with uploading images from the planet dataset)
-        if user_input is not None:
-            st.image(user_input, width=300)
-            predictions = get_predictions(user_input)
-
-        # Allow the user to predict from a random image (IMAGE NOT DISPLAYING AFTER PRESSING THE BUTTON, PREDICTIONS OKAY)
-        st.button('Predict from Test Data', on_click=random_prediction)
 
 
 def random_prediction():
@@ -84,8 +95,11 @@ def get_predictions(image):
         img_byte_arr = img_byte_arr.getvalue()
 
         response = runtime.invoke_endpoint(EndpointName=endpoint,
-                                                  Body=img_byte_arr, ContentType='application/x-image')
+                                           Body=img_byte_arr, ContentType='application/x-image')
 
-        # do not simplify into response['Body'].read(); will get error
-        payload = response['Body']
-        return np.array(payload.read())
+        return response['Body'].read()
+
+def get_tags(values):
+    print(values)
+    for tag, i in zip(TAGS, values):
+        print(tag, i)
