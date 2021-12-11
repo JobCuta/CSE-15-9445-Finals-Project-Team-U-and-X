@@ -75,7 +75,10 @@ def app():
 
 def random_prediction():
     random_image = random.choice(prediction_lst)
-    image = '{}/{}/{}'.format(URL, prediction_path, random_image)
+    print(random_image)
+    # image = '{}/{}/{}'.format(URL, prediction_path, random_image)
+    image = '{}/{}/test_9.jpg'.format(URL, prediction_path, random_image)
+    print(image)
     # Temporarily store the image in the folder so it can be referenced
     urllib.request.urlretrieve(image, 'temp.png')
     if image is not None:
