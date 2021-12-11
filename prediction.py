@@ -67,26 +67,26 @@ def app():
                 st.image(user_input, width=300)
                 with st.spinner():
                     predictions = get_predictions('temp.png')
-                st.success(predictions)
+                # st.success(predictions)
     else:
         st.button('Predict from Test Data', on_click=random_prediction())
 
 
 
 def random_prediction():
+    # Test a supposed image
+    # sample = ["test_9.jpg"]
     random_image = random.choice(prediction_lst)
-    print(random_image)
-    # image = '{}/{}/{}'.format(URL, prediction_path, random_image)
-    image = '{}/{}/test_9.jpg'.format(URL, prediction_path, random_image)
-    print(image)
+    image = '{}/{}/{}'.format(URL, prediction_path, random_image)
     # Temporarily store the image in the folder so it can be referenced
     urllib.request.urlretrieve(image, 'temp.png')
     if image is not None:
         with st.container():
-            st.image(image, width=300)
+            col1, col2, col3 = st.columns([1,2,1])
+            col2.image(image, use_column_width=True)
             with st.spinner():
                 predictions = get_predictions('temp.png')
-            st.success(predictions)
+            # st.success(predictions)
 
 
 # Runs the sagemaker runtime client to access the endpoint for inference
@@ -99,10 +99,53 @@ def get_predictions(image):
 
         response = runtime.invoke_endpoint(EndpointName=endpoint,
                                            Body=img_byte_arr, ContentType='application/x-image')
+        
+        # Transforms the "response" to a readable array
+        result_array = json.loads(response['Body'].read().decode())
 
-        return response['Body'].read()
+        # Show "tags" above threshold (0.6)
+        labels = []
+        for tag, i in zip(TAGS, result_array):
+            if i > 0.6:
+                labels.append(tag)
+                # print(tag, i)
+        
+        # Show labels in Streamlit
+        show_amazon_labels(labels)
 
-def get_tags(values):
-    print(values)
-    for tag, i in zip(TAGS, values):
-        print(tag, i)
+        # return response['Body'].read()
+
+# Output label rows
+def show_amazon_labels(labels, n_labels_per_row=4):
+    n_labels = len(labels)
+    is_there_def = 0
+    if n_labels < n_labels_per_row:
+        n_rows = 1
+        n_final_cols = n_labels
+        row = 1
+    else:
+        n_rows = n_labels // n_labels_per_row
+        n_final_cols = n_labels % n_labels_per_row
+        row = 0
+    idx = 0
+    while row <= n_rows:
+        n_cols = n_labels_per_row
+        if row == n_rows:
+            if n_final_cols == 0:
+                break
+            else:
+                n_cols = n_final_cols
+        cols = st.columns(n_cols)
+        for i in range(n_cols):
+            with cols[i]:
+                if labels[idx] in DEFORESTATION_TAGS:
+                    st.error(labels[idx])
+                    is_there_def = 1
+                else:
+                    st.success(labels[idx])
+            idx += 1
+        row += 1
+        if is_there_def == 1:
+            st.caption("The image shows forms of deforestation.")
+        else: 
+            st.caption("No forms of deforestation detected.")
