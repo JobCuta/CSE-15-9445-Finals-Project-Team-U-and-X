@@ -80,13 +80,11 @@ def app():
         
         st.subheader('Sample images of Training Data (40 sample images will be displayed)')
         tags = st.multiselect('Select Tags', train_df.columns[2:-2]) #selected tags
-        tags_str = " ".join(tags) #convert selected to string
-        # st.write('tags', tags_str)
+        tags_str = "|".join(tags) 
         tags_df = train_df.iloc[:,[0]][train_df['tags'].str.contains(tags_str)] #search image file names based on tags
         tags_df = ['{}/{}/{}'.format(URL, train_path, img) for img in tags_df.index] #convert image names to links
-
-        if tags_str != '':
-            if tags_df != []:
+        if len(tags) != 0:
+            if len(tags_df) != 0:
                 with st.container():
                     i_col1, i_col2, i_col3, i_col4 = st.columns(4)
                     i_cols = [i_col1, i_col2, i_col3, i_col4]
@@ -95,7 +93,7 @@ def app():
                     for i in tags_df:
                         i_cols[curr_icol].image(i, width=256)
                         prev = prev + 1
-                        if prev == 40: #maximum images to show
+                        if prev == 40: #maximum images
                             break
                         if curr_icol == 3:
                             curr_icol = 0
