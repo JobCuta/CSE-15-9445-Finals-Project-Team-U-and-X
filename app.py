@@ -77,8 +77,8 @@ def app():
     with st.container():
         st.header('Training Data')
         st.dataframe(train_df)
-        
-        st.subheader('Sample images of Training Data (40 sample images will be displayed)')
+        st.subheader('Sample images of Training Data')
+        st.write('A maximum of 50 sample images will be displayed.')
         tags = st.multiselect('Select Tags', train_df.columns[2:-2]) #selected tags
         tags_str = " ".join(tags) #convert selected to string
         # st.write('tags', tags_str)
@@ -87,23 +87,24 @@ def app():
 
         if tags_str != '':
             if tags_df != []:
+                st.write(f'A total number of **{len(tags_df)}** images were found with those tags.')
                 with st.container():
-                    i_col1, i_col2, i_col3, i_col4 = st.columns(4)
-                    i_cols = [i_col1, i_col2, i_col3, i_col4]
+                    i_col1, i_col2, i_col3, i_col4, i_col5, i_col6, i_col7, i_col8, i_col9, i_col10 = st.columns(10)
+                    i_cols = [i_col1, i_col2, i_col3, i_col4, i_col5, i_col6, i_col7, i_col8, i_col9, i_col10]
                     prev = 0
                     curr_icol = 0
                     for i in tags_df:
-                        i_cols[curr_icol].image(i, width=256)
+                        i_cols[curr_icol].image(i, width=100)
                         prev = prev + 1
-                        if prev == 40: #maximum images to show
+                        if prev == 50: #maximum images to show
                             break
-                        if curr_icol == 3:
+                        if curr_icol == 9:
                             curr_icol = 0
                         else:
                             curr_icol = curr_icol + 1
             else:
                 st.write('No image with those tags cannot be found.')
-                
+
     with st.container():
         st.header('Validation Data')
         st.dataframe(validation_df)
