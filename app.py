@@ -78,7 +78,7 @@ def app():
         st.header('Training Data')
         st.dataframe(train_df)
         
-        st.subheader('Sample images of Training Data')
+        st.subheader('Sample images of Training Data (40 sample images will be displayed)')
         tags = st.multiselect('Select Tags', train_df.columns[2:-2]) #selected tags
         tags_str = " ".join(tags) #convert selected to string
         # st.write('tags', tags_str)
@@ -95,6 +95,8 @@ def app():
                     for i in tags_df:
                         i_cols[curr_icol].image(i, width=256)
                         prev = prev + 1
+                        if prev == 40: #maximum images to show
+                            break
                         if curr_icol == 3:
                             curr_icol = 0
                         else:
