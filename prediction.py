@@ -64,7 +64,10 @@ def app():
             user_input = st.file_uploader(label='Upload an image', type='png',accept_multiple_files=False)
             # Gets prediction after the user uploads an image (Currently doesnt work with uploading images from the planet dataset)
             if user_input is not None:
-                st.image(user_input, width=300)
+                user_input = Image.open(user_input)
+                user_input = user_input.resize((256, 256))
+                user_input.save
+                st.image(user_input)
                 with st.spinner():
                     predictions = get_predictions('temp.png')
                 # st.success(predictions)

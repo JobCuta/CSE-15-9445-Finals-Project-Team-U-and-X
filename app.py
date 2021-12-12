@@ -160,7 +160,7 @@ def app():
     
     with st.container():
         drowpdown = st.selectbox("Co-occurrence Matrix", 
-        ["Matrix with labels","Matrix with weather labels"])
+        ["Matrix with all labels","Matrix with weather labels", "Matrix with other tags"])
 
         def make_cooccurrence_matrix(labels):
             numeric_df = df[labels]
@@ -169,14 +169,14 @@ def app():
         
         matrix1 = make_cooccurrence_matrix(tag_columns)
 
-        if drowpdown == 'Matrix with labels':
+        if drowpdown == 'Matrix with all labels':
             fig, ax = plt.subplots(figsize = (15,8))
             sns.heatmap(df.corr(), ax = ax)
 
             st.write(matrix1)
             st.write(fig)
         
-        else:
+        elif drowpdown == 'Matrix with weather labels':
             weather_labels = ['clear','partly_cloudy','haze','cloudy']
             matrix2 = make_cooccurrence_matrix(weather_labels)
             fig2, ax = plt.subplots(figsize = (15,8))
@@ -184,6 +184,13 @@ def app():
 
             st.write(matrix2)
             st.write(fig2)
+        else:
+            other_labels = ['agriculture','artisinal_mine','bare_ground','blooming','blow_down','conventional_mine','cultivation','habitation','primary','road','selective_logging','slash_burn','water']
+            matrix3 = make_cooccurrence_matrix(other_labels)
+            fig3, ax = plt.subplots(figsize = (15,8))
+            sns.heatmap(matrix3.corr(), ax = ax)
+            st.write(matrix3)
+            st.write(fig3)
 
 # Function to get the sum of the tags for a given dataset
 def get_tag_counts(dataframe):

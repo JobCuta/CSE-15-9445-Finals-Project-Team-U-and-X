@@ -3,9 +3,10 @@ import app
 import prediction
 import streamlit as st
 import metrics
-
+import index
 # Pages displayed in the dropdown for page navigation
 pages = {
+    "About": index,
     "Dashboard": app,
     "Metrics": metrics,
     "Prediction": prediction,
