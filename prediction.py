@@ -59,37 +59,34 @@ def app():
     st.header('Prediction')
     pred_type = st.selectbox('Type of Prediction', ['User Upload', 'Random Image'])
     if pred_type == 'User Upload':
-        
         with st.container():
             user_input = st.file_uploader(label='Upload an image', type='png',accept_multiple_files=False)
             # Gets prediction after the user uploads an image (Currently doesnt work with uploading images from the planet dataset)
             if user_input is not None:
                 user_input = Image.open(user_input)
                 user_input = user_input.resize((256, 256))
-                user_input.save
-                st.image(user_input)
+                user_input.save('temp.png')
+
+                col1, col2, col3 = st.columns([2, 1.5, 2])
+                col2.image('temp.png', use_column_width=True)
                 with st.spinner():
-                    predictions = get_predictions('temp.png')
-                # st.success(predictions)
+                    get_predictions('temp.png')
     else:
         st.button('Predict from Test Data', on_click=random_prediction())
 
 
 
 def random_prediction():
-    # Test a supposed image
-    # sample = ["test_9.jpg"]
     random_image = random.choice(prediction_lst)
     image = '{}/{}/{}'.format(URL, prediction_path, random_image)
     # Temporarily store the image in the folder so it can be referenced
     urllib.request.urlretrieve(image, 'temp.png')
     if image is not None:
         with st.container():
-            col1, col2, col3 = st.columns([1,2,1])
+            col1, col2, col3 = st.columns([2, 1.5, 2])
             col2.image(image, use_column_width=True)
             with st.spinner():
-                predictions = get_predictions('temp.png')
-            # st.success(predictions)
+                get_predictions('temp.png')
 
 
 # Runs the sagemaker runtime client to access the endpoint for inference
@@ -115,8 +112,6 @@ def get_predictions(image):
         
         # Show labels in Streamlit
         show_amazon_labels(labels)
-
-        # return response['Body'].read()
 
 # Output label rows
 def show_amazon_labels(labels, n_labels_per_row=4):
