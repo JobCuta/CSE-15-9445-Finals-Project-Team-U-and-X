@@ -2,6 +2,12 @@ import streamlit as st
 
 def app():
     with st.container():
+        st.title('FOREST DECLASSIFIER MODEL')
+        st.header('Data Mining CSE 15 93445 | Finals')
+        st.subheader('Team U and X')
+        st.write('Alcid, Apalla, Corsino, Cuta, Javier, Langit, Tomelden')
+        st.write('')
+    with st.container():
         st.header('About the Project')
         st.markdown("Forests have been essential to not just the survival of the earth, but also for humanity and its progress. It is also considered to be a home of multiple species, acting as an ecosystem for many of its inhabitants and is considered to be vital in regulating and cooling the earth’s temperature. However, as humanity’s technological advancement progresses further so do its needs of resources to expand and grow. Throughout the history of mankind, forests have become a staple source of various resources for human beings. Where they may come in different forms such as a source of food from its inhabitants or wood that can be used for shelter or fuel for fire.")
         st.markdown("Deforestation is one of the most common and biggest threats to forests globally and since the 1960s, over half of the tropical forests have been degraded. This resulted in extinction of species for it decreases the ability of forests to provide their needs. This does not only impact animals but also the people whose livelihood depends on forests.")

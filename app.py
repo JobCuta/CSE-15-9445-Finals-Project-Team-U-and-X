@@ -80,11 +80,24 @@ def app():
         st.subheader('Sample images of Training Data')
         st.write('A maximum of 50 sample images will be displayed.')
         tags = st.multiselect('Select Tags', train_df.columns[2:-2]) #selected tags
-        tags_str = "|".join(tags) 
-        tags_df = train_df.iloc[:,[0]][train_df['tags'].str.contains(tags_str)] #search image file names based on tags
+        #convert tags to list 
+        #search train_df for sublist of selected tags 
+        
+        # tags_df = train_df[train_df['tags'].isin(tags)]
+        tags_df = train_df['tags']
+        tags_list = []
+        for row in train_df.itertuples():
+            result = all(tag in row.tags for tag in tags)
+            if result==True:
+                tags_list.append(row)
+        tags_df = pd.DataFrame(tags_list)
+        tags_df = tags_df.set_index(tags_df['Index'])
+        # st.write(tags_df.index, 'tagslist')
+        
+
         tags_df = ['{}/{}/{}'.format(URL, train_path, img) for img in tags_df.index] #convert image names to links
         if len(tags) != 0:
-            if len(tags_df) != 0:
+            if len(tags_df) != len(train_df['tags']):
                 st.write(f'A total number of **{len(tags_df)}** images were found with those tags.')
                 with st.container():
                     i_col1, i_col2, i_col3, i_col4, i_col5, i_col6, i_col7, i_col8, i_col9, i_col10 = st.columns(10)
