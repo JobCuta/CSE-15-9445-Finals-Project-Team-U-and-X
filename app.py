@@ -117,7 +117,7 @@ def app():
                 st.write('No image with those tags cannot be found.')
 
     with st.container():
-        st.header('Validation Data')
+        st.header('Testing Data')
         st.dataframe(validation_df)
 
         with st.container():
@@ -142,7 +142,7 @@ def app():
         col1, col2 = st.columns([0.5, 0.5])
         
         with col1:
-            deforestation_dropdown = st.selectbox('Deforestation Sample Split', ['Dataset', 'Training Data', 'Validation Data'])
+            deforestation_dropdown = st.selectbox('Deforestation Sample Split', ['Dataset', 'Training Data', 'Testing Data'])
             if deforestation_dropdown == 'Dataset':
                 #Plotting of pie chart
                 fig = px.pie(df, names = 'present_tags', title = "Number of entries with deforestation tags")
@@ -153,12 +153,12 @@ def app():
                 st.write(training)
             else:
                 validation = px.pie(df[df['type'] == 'validation'],
-                                    names='present_tags', title="Number of entries with deforestation tags (Validation Data)")
+                                    names='present_tags', title="Number of entries with deforestation tags (Testing Data)")
                 st.write(validation)
                 
             
         with col2:
-            tag_dropdown = st.selectbox('Tags', ['Dataset', 'Training Data', 'Validation Data'])
+            tag_dropdown = st.selectbox('Tags', ['Dataset', 'Training Data', 'Testing Data'])
             if tag_dropdown == 'Dataset':
                 fig = px.bar(get_tag_counts(df), x='tag', y='count', title="Number of entries for each tag")
                 st.plotly_chart(fig, use_container_width=True)
@@ -168,7 +168,7 @@ def app():
                 st.plotly_chart(training, use_container_width=True)
             else:
                 validation = px.bar(get_tag_counts(validation_df), x='tag', y='count',
-                              title="Number of entries for each tag (Validation Data)")
+                              title="Number of entries for each tag (Testing Data)")
                 st.plotly_chart(validation, use_container_width=True)
     
     

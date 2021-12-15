@@ -73,7 +73,10 @@ def app():
                     get_predictions('temp.png')
     else:
         st.button('Predict from Test Data', on_click=random_prediction())
-
+    with st.container():
+        st.text("Legend:")
+        st.success("Natural occurrence (No sign of deforestation or man-made interference).")  
+        st.error("Sign of deforestation (Sign of deforestation or man-made interference).")
 
 
 def random_prediction():
