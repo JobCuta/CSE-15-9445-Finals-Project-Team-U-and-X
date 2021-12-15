@@ -136,11 +136,11 @@ def show_amazon_labels(labels, n_labels_per_row=4):
         cols = st.columns(n_cols)
         for i in range(n_cols):
             with cols[i]:
-                if labels[idx] in DEFORESTATION_TAGS:
-                    st.error(labels[idx])
+                if labels[idx][0] in DEFORESTATION_TAGS:
+                    st.error(labels[idx][0] + " | " + "{:.2f}".format(labels[idx][1]) + "%")
                     is_there_def = 1
                 else:
-                    st.success(labels[idx])
+                    st.success(labels[idx][0] + " | " + "{:.2f}".format(labels[idx][1]) + "%")
             idx += 1
         row += 1
         if is_there_def == 1:
