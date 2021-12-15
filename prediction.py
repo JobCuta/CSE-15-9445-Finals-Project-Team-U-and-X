@@ -107,7 +107,7 @@ def get_predictions(image):
         labels = []
         for tag, i in zip(TAGS, result_array):
             if i > 0.6:
-                labels.append(tag)
+                labels.append([tag, i])
                 # print(tag, i)
         
         # Show labels in Streamlit
