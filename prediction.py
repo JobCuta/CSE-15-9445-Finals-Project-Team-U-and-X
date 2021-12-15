@@ -114,7 +114,7 @@ def get_predictions(image):
         show_amazon_labels(labels)
 
 # Output label rows
-def show_amazon_labels(labels, n_labels_per_row=4):
+def show_amazon_labels(labels, n_labels_per_row=5):
     n_labels = len(labels)
     is_there_def = 0
     if n_labels < n_labels_per_row:
